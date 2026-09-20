@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دارکو CRM - سیستم نقش‌محور</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#5C0000">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root{--cherry:#8B0000;--cherry-deep:#5C0000;--cream:#FBF0DA;--black:#000000;--white:#FFFFFF;--gray:#707070;--success:#00A651;--warning:#FF9800;--info:#0066CC;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;font-family:'Vazirmatn',sans-serif;background:var(--cream);}
+  body{min-height:100vh;padding-bottom:80px;}
+  header{background:var(--cherry-deep);color:var(--cream);padding:16px 20px;position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;}
+  header h1{margin:0;font-size:18px;font-weight:800;}
+  header p{margin:4px 0 0;font-size:11px;color:#E4CFAE;}
+  .db-status{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;}
+  .db-indicator{width:12px;height:12px;border-radius:50%;background:#00A651;animation:pulse 2s infinite;}
+  .db-indicator.offline{background:#FF6B6B;animation:none;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+  main{max-width:600px;margin:0 auto;padding:16px;}
+  .role-selector{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .role-btn{padding:10px 14px;border:2px solid #E0D2C0;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:all .2s;}
+  .role-btn.active{background:var(--cherry);color:var(--cream);border-color:var(--cherry);}
+  .card{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+  .section-title{font-size:14px;font-weight:800;color:var(--cherry-deep);margin:16px 0 10px;}
+  label{display:block;font-size:12px;font-weight:600;color:var(--cherry-deep);margin:10px 0 5px;}
+  input[type=text],input[type=tel],input[type=date],input[type=number],textarea,select{width:100%;padding:10px 12px;border:1.5px solid #E0D2C0;border-radius:8px;font-family:inherit;font-size:14px;margin-bottom:10px;}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--cherry);border-color:var(--cherry);}
+  .btn{width:100%;padding:12px;border:none;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:14px;margin-top:8px;}
+  .btn-primary{background:var(--cherry);color:#fff;}
+  .btn-success{background:var(--success);color:#fff;}
+  .btn-info{background:var(--info);color:#fff;}
+  .btn-danger{background:#C62828;color:#fff;border:none;padding:8px 12px;border-radius:7px;cursor:pointer;} .btn-warning{background:var(--warning);color:#fff;}
+  .btn-ghost{background:transparent;border:2px solid var(--cherry);color:var(--cherry);}
+  .btn-small{width:auto;padding:8px 12px;font-size:12px;}
+  .product-card{background:#f9f9f9;padding:12px;border-radius:8px;margin-bottom:8px;border:2px solid #E0D2C0;cursor:pointer;}
+  .product-card:hover{background:#f0f0f0;border-color:var(--cherry);}
+  .product-card.selected{background:var(--cream);border-color:var(--cherry);}
+  .order-item{background:#f9f9f9;padding:12px;border-radius:8px;margin-bottom:8px;border-left:4px solid var(--cherry);}
+  .stat-box{background:linear-gradient(135deg,var(--cherry-deep),var(--cherry));color:#fff;padding:16px;border-radius:8px;text-align:center;margin-bottom:10px;}
+  .stat-box .number{font-size:28px;font-weight:800;}
+  .hidden{display:none!important;}
+  .toast{position:fixed;bottom:90px;right:16px;background:var(--cherry);color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;z-index:30;animation:slideIn .3s;}
+  @keyframes slideIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--cherry-deep);display:flex;z-index:20;border-top:2px solid var(--cherry);}
+  .tab-btn{flex:1;background:none;border:none;color:#C99A9A;padding:8px 4px;font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;}
+  .tab-btn.active{color:var(--cream);}
+  .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:40;align-items:center;justify-content:center;}
+  .modal.active{display:flex;}
+  .modal-content{background:#fff;border-radius:12px;padding:20px;max-width:500px;max-height:80vh;overflow-y:auto;width:90%;}
+  .modal-header{font-size:16px;font-weight:800;color:var(--cherry-deep);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+  .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);}
+  .team-note{background:#FFF8DC;padding:12px;border-radius:8px;margin-bottom:12px;border-right:4px solid var(--warning);}
+  .backup-item{background:#f9f9f9;padding:12px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🏪 دارکو CRM</h1>
+    <p>سیستم مدیریت ارتباط با مشتری</p>
+  </div>
+  <div class="db-status">
+    <div class="db-indicator" id="dbIndicator"></div>
+    <span id="dbStatus">وصل</span>
+  </div>
+</header>
+
+<main>
+  
+  <div class="section-title">👤 انتخاب نقش شما</div>
+  <div class="role-selector">
+    <button class="role-btn active" onclick="setRole('visitor')">👨‍💼 ویزیتور</button>
+    <button class="role-btn" onclick="setRole('callcenter')">☎️ کال‌سنتر</button>
+    <button class="role-btn" onclick="setRole('delivery')">🚚 تحویل</button>
+    <button class="role-btn" onclick="setRole('production')">🏭 تولید</button>
+    <button class="role-btn" onclick="setRole('invoice')">🧾 فاکتور</button>
+    <button class="role-btn" onclick="setRole('accountant')">💰 حساب</button>
+    <button class="role-btn" onclick="setRole('manager')">👨‍💼 مدیر</button>
+    <button class="role-btn" onclick="setRole('appStore')">🛒 محصولات</button>
+  </div>
+
+  <!-- ویزیتور -->
+  <div id="visitorPanel" class="hidden">
+    <div class="card">
+      <div class="section-title">👨‍💼 پنل ویزیتور</div>
+      <label>👤 مشتری</label>
+      
+<div class="customer-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;">
+  <select id="visitorLocationFilter" onchange="renderCustomerSelects()"><option value="">📍 همه لوکیشن‌ها</option></select>
+  <select id="visitorFollowupFilter" onchange="renderCustomerSelects()"><option value="">📋 همه پیگیری‌ها</option><option value="none">بدون پیگیری</option><option value="overdue">عقب‌افتاده</option><option value="today">امروز</option><option value="future">آینده</option></select>
+  <select id="visitorRouteFilter" onchange="renderCustomerSelects()"><option value="">🛣️ همه مسیرها</option></select>
+</div>
+<select id="visitorCustomer" onchange="updateVisitorForm()">
+        <option value="">انتخاب مشتری موجود</option>
+      </select>
+      <button class="btn btn-ghost" onclick="showCustomerModal()">➕ مشتری جدید</button>
+
+      <div id="visitorOrderForm" class="hidden">
+        <div class="section-title" style="margin-top:20px;">📦 سفارش و فاکتور</div>
+        <label>محصول</label>
+        <div id="visitorProductList"></div>
+        <button class="btn btn-ghost btn-small" onclick="showProductModal()">➕ محصول جدید</button>
+        <label>مقدار</label>
+        <input type="number" id="visitorQty" min="1" value="1">
+        <label>قیمت واحد</label>
+        <input type="text" inputmode="numeric" oninput="formatMoneyInput(this)" inputmode="numeric" id="visitorPrice" value="0">
+        <label>یادداشت</label>
+        <textarea id="visitorNotes" placeholder="یادداشت"></textarea>
+        <label>نوع فاکتور</label>
+        <select id="visitorInvoiceType">
+          <option value="regular">عادی</option>
+          <option value="premium">فریمیوم</option>
+        </select>
+        <button class="btn btn-primary" onclick="submitVisitorOrder()">✅ ثبت سفارش و فاکتور</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- کال سنتر -->
+  <div id="callcenterPanel" class="hidden">
+    <div class="card">
+      <div class="section-title">☎️ پنل کال‌سنتر</div>
+      <label>مشتری</label>
+      
+<div class="customer-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;">
+  <select id="ccLocationFilter" onchange="renderCustomerSelects()"><option value="">📍 همه لوکیشن‌ها</option></select>
+  <select id="ccFollowupFilter" onchange="renderCustomerSelects()"><option value="">📋 همه پیگیری‌ها</option><option value="none">بدون پیگیری</option><option value="overdue">عقب‌افتاده</option><option value="today">امروز</option><option value="future">آینده</option></select>
+  <select id="ccRouteFilter" onchange="renderCustomerSelects()"><option value="">🛣️ همه مسیرها</option></select>
+</div>
+<select id="ccCustomer" onchange="updateCCCustomerDetails()"><option value="">انتخاب مشتری</option></select>
+      <div id="ccCustomerDetails" style="display:none;background:#FFF8F0;border:1.5px solid #E0D2C0;border-radius:8px;padding:10px 12px;margin:4px 0 12px;">
+        <div style="font-size:12px;margin-bottom:6px;"><strong>📞 شماره تماس:</strong> <span id="ccCustomerPhone"></span></div>
+        <div style="font-size:12px;"><strong>📍 آدرس:</strong> <span id="ccCustomerAddress"></span></div><div style="font-size:12px;"><strong>🛣️ مسیر:</strong> <span id="ccCustomerRoute"></span></div>
+      </div>
+      <label>تاریخ تماس</label>
+      <input type="date" id="ccDate">
+      <label>نتیجه تماس</label>
+      <select id="ccResult" onchange="updateCCForm()">
+        <option value="">انتخاب کنید</option>
+        <option value="order">✅ سفارش</option>
+        <option value="no_order">❌ بدون سفارش</option>
+      </select>
+      <div id="ccOrderFields" class="hidden">
+        <label>محصول</label>
+        <div id="ccProductList"></div>
+        <button class="btn btn-ghost btn-small" onclick="showProductModal()">➕ محصول جدید</button>
+        <label>مقدار</label>
+        <input type="number" id="ccQty" min="1" value="1">
+        <label>قیمت واحد</label>
+        <input type="text" inputmode="numeric" oninput="formatMoneyInput(this)" inputmode="numeric" id="ccPrice" value="0">
+      </div>
+      <label>یادداشت</label>
+      <textarea id="ccNotes" placeholder="یادداشت"></textarea>
+      <label>تاریخ پیگیری بعدی</label>
+      <input type="date" id="ccFollowupDate">
+      <button class="btn btn-success" onclick="submitCCResult()">💾 ثبت</button>
+    </div>
+    <div class="card">
+      <div class="section-title">📋 صف پیگیری‌ها</div>
+      <div id="ccFollowupQueue"></div>
+<div class="section-title" style="margin-top:16px;">🎯 صف فروش فریمیوم</div>
+<div id="salesQueue"></div>
+    </div>
+  </div>
+
+  <!-- تحویل -->
+  <div id="deliveryPanel" class="hidden">
+    <div class="card">
+      <div class="section-title">🚚 پنل تحویل‌دهنده</div>
+      <div class="section-title" style="margin-top:16px;">📦 سفارشات آماده</div>
+      <div id="deliveryList"></div>
+    </div>
+  </div>
+
+  <!-- تولید -->
+  <div id="productionPanel" class="hidden">
+    <div class="card">
+      <div class="section-title">🏭 پنل تولید</div>
+      <div class="section-title" style="margin-top:16px;">🎯 سفارشات منتظر تولید</div>
+      <div id="productionList"></div>
+    </div>
+  </div>
+
+  <!-- فاکتور -->
+  <div id="invoicePanel" class="hidden">
+    <div class="card">
+      <div class="section-title">🧾 فاکتورهای منتظر صدور</div>
+      <div id="invoicePendingList"></div>
+      <div class="section-title" style="margin-top:20px;">📜 فاکتورهای صادر شده</div>
+      <div id="invoiceHistoryList"></div>
+    </div>
+  </div>
+
+  <!-- حساب -->
+  <div id="accountantPanel" class="hidden">
+    <div class="card">
+      <div class="section-title">💰 پنل حسابدار</div>
+      <div class="section-title" style="margin-top:16px;">📦 منتظر تحویل</div>
+      <div id="accountantDeliveryList"></div>
+      <div class="section-title" style="margin-top:16px;">💳 منتظر پرداخت</div>
+      <div id="accountantPaymentList"></div>
+      <div class="section-title" style="margin-top:16px;">✅ تکمیل‌شده</div>
+      <div id="accountantCompletedList"></div>
+    </div>
+  </div>
+
+  <!-- مدیر -->
+  <div id="managerPanel" class="hidden">
+    <div class="card">
+      <div class="section-title">👨‍💼 پنل مدیر</div>
+      <div id="managerStats"></div>
+<div class="section-title" style="margin-top:20px;">⚠️ سفارش‌های بدون فاکتور</div>
+<div id="ordersWithoutInvoices"></div><div class="section-title" style="margin-top:20px;">👥 مدیریت مشتریان</div><div id="managerCustomerList"></div><div class="section-title" style="margin-top:20px;">🛣️ مدیریت مسیرها</div>
+<div style="display:flex;gap:6px;align-items:center;">
+  <input id="newRouteTitle" type="text" placeholder="مثلاً گیلاوند، دماوند، جابان" style="flex:1;">
+  <button class="btn btn-primary btn-small" onclick="addRoute()">➕ ایجاد مسیر</button>
+</div>
+<div id="routeList" style="margin-top:10px;"></div>
+<div style="font-size:11px;color:var(--gray);margin-top:6px;">مشتری‌ها با توجه به عنوان مسیر و وجود آن عنوان در آدرس، خودکار در همان مسیر نمایش داده می‌شوند.</div>
+      <div class="section-title" style="margin-top:20px;">📋 یادداشت تیم</div>
+      <label>پیام برای تیم</label>
+      <textarea id="teamNote" placeholder="پیام یا تعلیمات برای تیم"></textarea>
+      <button class="btn btn-primary" onclick="sendTeamNote()">📢 ارسال</button>
+      <div id="teamNotesHistory" style="margin-top:16px;"></div>
+      <div class="section-title" style="margin-top:20px;">💾 بک‌آپ</div>
+      <button class="btn btn-warning" onclick="createBackup()">💾 ایجاد بک‌آپ</button>
+      <button class="btn btn-info" onclick="showRestoreModal()">♻️ بازیابی</button>
+      <div id="backupList" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- محصولات -->
+  <div id="appStorePanel" class="hidden">
+    <div class="card">
+      <div class="section-title">🛒 App Store</div>
+      <button class="btn btn-ghost" onclick="showProductModal()">➕ محصول جدید</button>
+      <div class="section-title" style="margin-top:16px;">📦 لیست محصولات</div>
+      <div id="appStoreList"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Modal مشتری -->
+<div id="customerModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>➕ مشتری جدید</span>
+      <button class="modal-close" onclick="closeModal('customerModal')">✕</button>
+    </div>
+    <label>نام</label>
+    <input type="text" id="newCustomerName" placeholder="نام کسب‌وکار">
+    <label>نوع</label>
+    <select id="newCustomerType">
+      <option value="">انتخاب</option>
+      <option value="cafe">☕ کافه</option>
+      <option value="supermarket">🏪 سوپرمارکت</option>
+      <option value="restaurant">🍽️ رستوران</option>
+    </select>
+    <label>مسئول</label>
+    <input type="text" id="newCustomerManager">
+    <label>تلفن</label>
+    <input type="tel" id="newCustomerPhone">
+    <label>آدرس</label>
+    <input type="text" id="newCustomerAddress">
+    <button class="btn btn-success" onclick="createNewCustomer()">✅ ثبت</button>
+    <button class="btn btn-ghost" onclick="closeModal('customerModal')">❌ بستن</button>
+  </div>
+</div>
+
+<div id="editCustomerModal" class="modal"><div class="modal-content">
+<div class="modal-header"><span>✏️ ویرایش مشتری</span><button class="modal-close" onclick="closeModal('editCustomerModal')">✕</button></div>
+<label>نام</label><input id="editCustomerName" type="text">
+<label>نوع کسب‌وکار</label><input id="editCustomerType" type="text">
+<label>مسئول</label><input id="editCustomerManager" type="text">
+<label>تلفن</label><input id="editCustomerPhone" type="tel">
+<label>آدرس</label><input id="editCustomerAddress" type="text">
+<button class="btn btn-success" onclick="saveEditCustomer()">✅ ذخیره تغییرات</button>
+<button class="btn btn-ghost" onclick="closeModal('editCustomerModal')">❌ بستن</button>
+</div></div>
+<!-- Modal محصول -->
+<div id="productModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>➕ محصول جدید</span>
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+    </div>
+    <label>نام</label>
+    <input type="text" id="newProductName">
+    <label>توضیح</label>
+    <input type="text" id="newProductDesc">
+    <label>قیمت</label>
+    <input type="text" inputmode="numeric" oninput="formatMoneyInput(this)" inputmode="numeric" id="newProductPrice" value="0">
+    <button class="btn btn-success" onclick="createNewProduct()">✅ ثبت</button>
+    <button class="btn btn-ghost" onclick="closeModal('productModal')">❌ بستن</button>
+  </div>
+</div>
+
+<!-- Modal تولید -->
+<div id="productionModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header"><span>🏭 وضعیت تولید</span><button class="modal-close" onclick="closeModal('productionModal')">✕</button></div>
+    <label>وضعیت</label>
+    <select id="productionStatus">
+      <option value="">انتخاب کنید</option>
+      <option value="completed">✅ تولید شد</option>
+      <option value="failed">❌ عدم تولید</option>
+    </select>
+    <label>یادداشت</label>
+    <textarea id="productionNotes" placeholder="توضیح یا دلیل"></textarea>
+    <button class="btn btn-success" onclick="confirmProduction()">✅ ثبت</button>
+    <button class="btn btn-ghost" onclick="closeModal('productionModal')">❌ بستن</button>
+  </div>
+</div>
+
+<!-- Modal تحویل -->
+<div id="deliveryModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header"><span>🚚 وضعیت تحویل</span><button class="modal-close" onclick="closeModal('deliveryModal')">✕</button></div>
+    <label>تاریخ</label>
+    <input type="date" id="deliveryDate">
+    <label>وضعیت</label>
+    <select id="deliveryStatus">
+      <option value="">انتخاب کنید</option>
+      <option value="in_transit">📍 در راه</option>
+      <option value="delivered">✅ تحویل داده شد</option>
+      <option value="not_available">📵 عدم حضور</option>
+    </select>
+    <label>یادداشت</label>
+    <textarea id="deliveryNotes" placeholder="توضیح یا توضیح عدم حضور"></textarea>
+    <button class="btn btn-success" onclick="confirmDelivery()">✅ ثبت</button>
+    <button class="btn btn-ghost" onclick="closeModal('deliveryModal')">❌ بستن</button>
+  </div>
+</div>
+
+<!-- Modal پرداخت -->
+<div id="paymentModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header"><span>💳 ثبت پرداخت</span><button class="modal-close" onclick="closeModal('paymentModal')">✕</button></div>
+    <label>روش</label>
+    <select id="paymentMethod" onchange="updatePaymentFields()">
+      <option value="">انتخاب</option>
+      <option value="card">💳 کارتخوان</option>
+      <option value="transfer">🏦 تراسفر</option>
+    </select>
+    <div id="transferFields" class="hidden">
+      <label>کد رسید</label>
+      <input type="text" id="receiptCode">
+    </div>
+    <button class="btn btn-success" onclick="confirmPayment()">✅</button>
+    <button class="btn btn-ghost" onclick="closeModal('paymentModal')">❌</button>
+  </div>
+</div>
+
+<!-- Modal ویرایش فاکتور -->
+<div id="editInvoiceModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header"><span>✏️ ویرایش فاکتور</span><button class="modal-close" onclick="closeModal('editInvoiceModal')">✕</button></div>
+    <label>شماره</label>
+    <input type="text" id="editInvoiceNo">
+    <label>تاریخ</label>
+    <input type="date" id="editInvoiceDate">
+    <label>مشتری</label>
+    <input type="text" id="editInvoiceCustomer">
+    <label>آدرس</label>
+    <input type="text" id="editInvoiceAddress">
+    <label>محصول</label>
+    <input type="text" id="editInvoiceProduct">
+    <label>مقدار</label>
+    <input type="number" id="editInvoiceQty" min="1" value="1">
+    <label>قیمت</label>
+    <input type="text" inputmode="numeric" oninput="formatMoneyInput(this)" inputmode="numeric" id="editInvoicePrice" value="0">
+    <label>یادداشت</label>
+    <textarea id="editInvoiceNotes"></textarea>
+    <button class="btn btn-success" onclick="saveEditInvoice()">✅ ذخیره</button>
+    <button class="btn btn-warning" onclick="downloadInvoicePDF()">📥 دانلود</button>
+    <button class="btn btn-ghost" onclick="closeModal('editInvoiceModal')">❌</button>
+  </div>
+</div>
+
+<!-- Modal بازیابی -->
+<div id="restoreModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header"><span>♻️ بازیابی بک‌آپ</span><button class="modal-close" onclick="closeModal('restoreModal')">✕</button></div>
+    <div id="restoreList"></div>
+    <button class="btn btn-ghost" onclick="closeModal('restoreModal')">❌</button>
+  </div>
+</div>
+
+<!-- Tabbar -->
+<div class="tabbar">
+  <button class="tab-btn active" onclick="setRole('visitor')">👨‍💼</button>
+  <button class="tab-btn" onclick="setRole('callcenter')">☎️</button>
+  <button class="tab-btn" onclick="setRole('delivery')">🚚</button>
+  <button class="tab-btn" onclick="setRole('production')">🏭</button>
+  <button class="tab-btn" onclick="setRole('invoice')">🧾</button>
+  <button class="tab-btn" onclick="setRole('accountant')">💰</button>
+  <button class="tab-btn" onclick="setRole('manager')">👨‍💼</button>
+  <button class="tab-btn" onclick="setRole('appStore')">🛒</button>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://rrnnajielmsxiryridcw.supabase.co/rest/v1';
+const SUPABASE_KEY = 'sb_publishable_jp4lmEdhEOGvPf84OltwDA_HK-N7WhL';
+
+const state = {
+  currentRole: 'visitor',
+  customers: [],
+  orders: [],
+  invoices: [],
+  followups: [],
+  products: [],
+  teamNotes: [],
+  backups: [],
+  routes: [],
+  currentOrderId: null,
+  currentInvoiceId: null,
+  selectedProduct: null,
+  dbConnected: false
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const saved = localStorage.getItem('darko_state');
+  if (saved) Object.assign(state, JSON.parse(saved));
+  
+  const today = new Date().toISOString().split('T')[0];
+  ['ccDate', 'deliveryDate', 'editInvoiceDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = today;
+  });
+  
+  await loadRemoteData();
+  setRole('visitor');
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(e => console.log(e));
+});
+
+function supabaseHeaders(extra = {}) {
+  return {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    ...extra
+  };
+}
+
+async function loadRemoteTable(table, stateKey) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/${table}?select=*`, {headers: supabaseHeaders()});
+    if (!res.ok) throw new Error(`${table}: ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error(`${table}: invalid response`);
+    const normalizers = {
+      customers: normalizeCustomer,
+      orders: normalizeOrder,
+      invoices: normalizeInvoice,
+      products: normalizeProduct,
+      team_notes: normalizeTeamNote,
+      followups: normalizeFollowup
+    };
+    const fn = normalizers[stateKey];
+    state[stateKey] = fn ? data.map(x => fn(x)) : data;
+    return true;
+  } catch (err) {
+    console.error(`Load ${table} error:`, err);
+    showToast(`⚠️ خطا در دریافت ${table}`);
+    return false;
+  }
+}
+
+function hydrateRoutesFromTeamNotes() {
+  const remoteRoutes = (state.teamNotes || []).filter(n => {
+    if (!n) return false;
+    if (n.sentBy === '__ROUTE__' && n.routeTitle) return true;
+    return n.author === '__ROUTE__' && n.routeTitle;
+  }).map(n => ({ id: n.id, title: String(n.routeTitle).trim() })).filter(r => r.title);
+
+  const localRoutes = Array.isArray(state.routes) ? state.routes : [];
+  const merged = [...localRoutes];
+  remoteRoutes.forEach(rr => {
+    if (!merged.some(r => String(r.id) === String(rr.id))) merged.push(rr);
+  });
+  state.routes = merged.filter((r, i, arr) =>
+    r.title && arr.findIndex(x => String(x.title).toLowerCase() === String(r.title).toLowerCase()) === i
+  );
+}
+
+async function loadRemoteData() {
+  const tables = [
+    ['customers', 'customers'],
+    ['orders', 'orders'],
+    ['invoices', 'invoices'],
+    ['followups', 'followups'],
+    ['products', 'products'],
+    ['team_notes', 'teamNotes']
+  ];
+  const results = await Promise.all(tables.map(([table, key]) => loadRemoteTable(table, key)));
+  hydrateRoutesFromTeamNotes();
+  state.dbConnected = results.some(Boolean);
+  updateDBStatus(state.dbConnected);
+  if (state.dbConnected) saveLocal();
+  render();
+}
+
+function dbPayload(table, data) {
+  if (table === 'customers') return {
+    id: data.id,
+    name: data.name ?? '',
+    business_type: data.business_type ?? data.type ?? null,
+    contact_name: data.contact_name ?? data.manager ?? null,
+    phone: data.phone ?? null,
+    location: data.location ?? data.address ?? null,
+    created_at: data.created_at || new Date().toISOString()
+  };
+  if (table === 'products') return {
+    id: data.id,
+    name: data.name,
+    description: data.description ?? data.desc ?? null,
+    price: Number(data.price) || 0,
+    created_at: data.created_at || new Date().toISOString()
+  };
+  if (table === 'calls') return {
+    id: data.id,
+    customer_id: data.customerId ?? data.customer_id ?? null,
+    date: data.date ?? null,
+    result: data.result ?? null,
+    followup_date: data.followupDate ?? data.followup_date ?? null,
+    notes: data.notes ?? null,
+    created_at: data.created_at || new Date().toISOString()
+  };
+  if (table === 'followups') return {
+    id: data.id,
+    customer_id: data.customerId ?? data.customer_id ?? null,
+    date: data.date ?? null,
+    result: data.result ?? null,
+    followup_date: data.followupDate ?? data.followup_date ?? null,
+    notes: data.notes ?? null,
+    created_at: data.created_at || new Date().toISOString()
+  };
+  if (table === 'team_notes') {
+    if (data.sentBy === '__ROUTE__' || data.author === '__ROUTE__' || data.routeTitle) {
+      return {
+        id: data.id,
+        note: JSON.stringify({type:'route', title: data.routeTitle ?? data.title ?? ''}),
+        author: '__ROUTE__',
+        created_at: data.created_at || new Date().toISOString()
+      };
+    }
+    return {
+      id: data.id,
+      note: data.message ?? data.note ?? null,
+      author: data.sentBy ?? data.author ?? null,
+      created_at: data.created_at || new Date().toISOString()
+    };
+  }
+  if (table === 'orders') return {
+    id: data.id,
+    customer_id: data.customerId ?? data.customer_id ?? null,
+    product: data.product ?? data.productName ?? null,
+    qty: Number(data.qty ?? data.quantity) || 0,
+    items: data.items ?? {
+      productId: data.productId ?? null,
+      price: Number(data.price ?? data.unitPrice) || 0,
+      invoiceType: data.invoiceType ?? null
+    },
+    total: Number(data.total) || 0,
+    status: data.status ?? 'pending',
+    lifecycle_status: data.lifecycleStatus ?? data.lifecycle_status ?? null,
+    date: data.date ?? null,
+    source: data.source ?? null,
+    assigned_to: data.assignedTo ?? data.assigned_to ?? null,
+    delivered_at: data.deliveredAt ?? data.delivered_at ?? null,
+    delivery_status: data.deliveryStatus ?? data.delivery_status ?? null,
+    payment_method: data.paymentMethod ?? data.payment_method ?? null,
+    payment_status: data.paymentStatus ?? data.payment_status ?? 'pending',
+    receipt_code: data.receiptCode ?? data.receipt_code ?? null,
+    order_notes: data.orderNotes ?? data.order_notes ?? null,
+    out_for_delivery_at: data.outForDeliveryAt ?? data.out_for_delivery_at ?? null,
+    produced_at: data.producedAt ?? data.produced_at ?? null,
+    created_at: data.created_at || new Date().toISOString()
+  };
+  if (table === 'invoices') return {
+    id: data.id,
+    order_id: data.orderId ?? data.order_id ?? null,
+    invoice_no: data.invoiceNo ?? data.invoice_no ?? null,
+    date: data.date ?? null,
+    customer_id: data.customerId ?? data.customer_id ?? null,
+    items: data.items ?? {
+      product: data.product ?? data.productName ?? null,
+      qty: Number(data.qty ?? data.quantity) || 0,
+      price: Number(data.price ?? data.unitPrice) || 0,
+      invoiceType: data.invoiceType ?? null
+    },
+    total: Number(data.total) || 0,
+    notes: data.notes ?? null,
+    status: data.status ?? 'pending',
+    created_at: data.created_at || new Date().toISOString()
+  };
+  return data;
+}
+
+function normalizeCustomer(c) {
+  if (!c) return c;
+  return {...c,
+    type: c.type ?? c.business_type ?? '',
+    manager: c.manager ?? c.contact_name ?? '',
+    phone: c.phone ?? '',
+    location: c.location ?? c.address ?? ''
+  };
+}
+function normalizeOrder(o) {
+  let items=o?.items;
+  if (typeof items==='string') { try { items=JSON.parse(items); } catch(_) { items={}; } }
+  items=items||{};
+  return {...o,
+    customerId:o.customer_id ?? o.customerId,
+    productId:items.productId ?? o.productId ?? null,
+    price:Number(items.price ?? o.price ?? 0),
+    invoiceType:items.invoiceType ?? o.invoiceType ?? null,
+    lifecycleStatus:o.lifecycle_status ?? o.lifecycleStatus,
+    assignedTo:o.assigned_to ?? o.assignedTo,
+    deliveredAt:o.delivered_at ?? o.deliveredAt ?? null,
+    deliveryStatus:o.delivery_status ?? o.deliveryStatus ?? null,
+    paymentMethod:o.payment_method ?? o.paymentMethod ?? null,
+    paymentStatus:o.payment_status ?? o.paymentStatus ?? 'pending',
+    receiptCode:o.receipt_code ?? o.receiptCode ?? null,
+    orderNotes:o.order_notes ?? o.orderNotes ?? null,
+    outForDeliveryAt:o.out_for_delivery_at ?? o.outForDeliveryAt ?? null,
+    producedAt:o.produced_at ?? o.producedAt ?? null
+  };
+}
+function normalizeInvoice(i) {
+  let items=i?.items;
+  if (typeof items==='string') { try { items=JSON.parse(items); } catch(_) { items={}; } }
+  items=items||{};
+  return {...i,
+    orderId:i.order_id ?? i.orderId,
+    invoiceNo:i.invoice_no ?? i.invoiceNo,
+    customerId:i.customer_id ?? i.customerId,
+    product:items.product ?? i.product ?? '',
+    qty:Number(items.qty ?? i.qty ?? 0),
+    price:Number(items.price ?? i.price ?? 0),
+    invoiceType:items.invoiceType ?? i.invoiceType ?? null
+  };
+}
+function normalizeProduct(p){return {...p, desc:p.desc ?? p.description ?? ''};}
+function normalizeFollowup(f){return {...f, customerId:f.customer_id ?? f.customerId, followupDate:f.followup_date ?? f.followupDate};}
+function normalizeTeamNote(n){
+  let routeTitle=n.routeTitle || '';
+  if (n.author === '__ROUTE__' && n.note) {
+    try { const x=typeof n.note==='string'?JSON.parse(n.note):n.note; if(x?.type==='route') routeTitle=x.title||''; } catch(_) {}
+  }
+  return {...n, message:n.message ?? n.note ?? '', sentBy:n.sentBy ?? n.author ?? '', routeTitle};
+}
+
+async function insertToSupabase(table, data, returnData = false) {
+  try {
+    const payload = dbPayload(table, data);
+    const res = await fetch(`${SUPABASE_URL}/${table}`, {
+      method: 'POST',
+      headers: supabaseHeaders({'Prefer': returnData ? 'return=representation' : 'return=minimal'}),
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text().catch(() => '');
+    if (!res.ok) {
+      console.error(`Insert ${table} failed:`, res.status, text, payload);
+      let message = text;
+      try { const error = JSON.parse(text); message = error.message || error.details || error.hint || text; } catch (_) {}
+      if (returnData) return {ok:false, message};
+      return false;
+    }
+    if (!returnData) return true;
+    let parsed=null;
+    if(text){try{parsed=JSON.parse(text);}catch(_) {}}
+    return {ok:true,data:parsed};
+  } catch(err) {
+    console.error(`Insert ${table} error:`,err);
+    return returnData ? {ok:false,message:err?.message||'خطای شبکه'} : false;
+  }
+}
+
+async function updateSupabase(table, id, data) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/${table}?id=eq.${encodeURIComponent(id)}`, {
+      method:'PATCH',
+      headers:supabaseHeaders({'Prefer':'return=minimal'}),
+      body:JSON.stringify(dbPayload(table,data))
+    });
+    if(!res.ok){
+      const detail=await res.text().catch(()=> '');
+      console.error(`Update ${table} failed:`,res.status,detail);
+      return false;
+    }
+    return true;
+  } catch(err){console.error(`Update ${table} error:`,err);return false;}
+}
+
+async function deleteFromSupabase(table, id) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/${table}?id=eq.${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: supabaseHeaders({'Prefer': 'return=minimal'})
+    });
+    if (!res.ok) {
+      console.error(`Delete ${table} failed:`, res.status, await res.text().catch(() => ''));
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(`Delete ${table} error:`, err);
+    return false;
+  }
+}
+
+async function saveToSupabase(table, data) {
+  return insertToSupabase(table, data);
+}
+
+function updateDBStatus(connected) {
+  const indicator = document.getElementById('dbIndicator');
+  const status = document.getElementById('dbStatus');
+  if (connected) {
+    indicator.classList.remove('offline');
+    status.textContent = '🟢 وصل';
+  } else {
+    indicator.classList.add('offline');
+    status.textContent = '🔴 قطع';
+  }
+}
+
+function saveLocal() {localStorage.setItem('darko_state', JSON.stringify(state));}
+
+function render() {
+  renderCustomerSelects();
+  renderVisitorProductList();
+  renderCCProductList();
+  renderCallCenterQueue();
+  renderSalesQueue();
+  renderDeliveryList();
+  renderProductionList();
+  renderInvoiceList();
+  renderAccountantOrders();
+  renderManagerStats();
+  renderOrdersWithoutInvoices();
+  renderManagerCustomerList();
+  renderTeamNotes();
+  renderBackupList();
+  renderAppStore();
+}
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function todayStr() {return new Date().toISOString().split('T')[0];}
+
+function faNum(num) {
+  const fa = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  return String(num).replace(/\d/g, d => fa[d]);
+}
+
+function faDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}/${faNum(m)}/${faNum(d)}`;
+}
+
+function parseMoneyInput(value) {
+  return Number(String(value ?? '').replace(/,/g, '').replace(/[^0-9.-]/g, '')) || 0;
+}
+
+function formatMoneyInput(el) {
+  const raw = String(el.value ?? '').replace(/,/g, '').replace(/[^0-9]/g, '');
+  el.value = raw ? Number(raw).toLocaleString('en-US') : '';
+}
+
+function genId() {return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);}
+
+function genCustomerId() {
+  const existingId = state.customers.find(c => c?.id)?.id;
+  if (existingId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(existingId))) {
+    if (window.crypto?.randomUUID) return crypto.randomUUID();
+  }
+  return genId();
+}
+
+function setRole(role) {
+  state.currentRole = role;
+  document.querySelectorAll('[id$="Panel"]').forEach(el => el.classList.add('hidden'));
+  const panel = document.getElementById(role + 'Panel');
+  if (panel) panel.classList.remove('hidden');
+  document.querySelectorAll('.role-btn, .tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll(`[onclick*="'${role}'"]`).forEach(btn => btn.classList.add('active'));
+  render();
+}
+
+function showModal(id) {document.getElementById(id)?.classList.add('active');}
+function closeModal(id) {document.getElementById(id)?.classList.remove('active');}
+
+function applyCustomerFilters(){ renderCustomerSelects(); }
+
+function customerFollowupBucket(c) {
+  const fs = state.followups.filter(f => String(f.customerId || f.customer_id) === String(c.id));
+  if (!fs.length) return 'none';
+  const dates = fs.map(f => f.followup_date || f.followupDate).filter(Boolean).sort();
+  if (!dates.length) return 'none';
+  const d = dates[dates.length-1], t = todayStr();
+  return d < t ? 'overdue' : d === t ? 'today' : 'future';
+}
+
+/* مسیر = عنوانی که مدیر ایجاد می‌کند.
+   هر مشتری بر اساس وجود عنوان مسیر داخل آدرسش عضو آن مسیر می‌شود. */
+function findCustomerById(id) {
+  return state.customers.find(c => String(c?.id) === String(id));
+}
+function findOrderById(id) {
+  return state.orders.find(o => String(o?.id) === String(id));
+}
+
+function getCustomerRoute(c) {
+  const address = String(c?.location || c?.address || '').trim().toLowerCase();
+  const routes = Array.isArray(state.routes) ? state.routes : [];
+  const explicit = String(c?.route || c?.location_route || c?.sales_route || '').trim();
+  if (explicit) return explicit;
+
+  const matches = routes
+    .map(r => ({title: String(r?.title || '').trim(), key: String(r?.title || '').trim().toLowerCase()}))
+    .filter(r => r.key && address.includes(r.key))
+    .sort((a,b) => b.key.length - a.key.length);
+
+  return matches[0]?.title || '';
+}
+
+function routeTitles() {
+  return (Array.isArray(state.routes) ? state.routes : [])
+    .map(r => String(r.title || '').trim())
+    .filter(Boolean);
+}
+
+function populateFilter(id, values, firstLabel, keepValue=true) {
+  const el=document.getElementById(id); if(!el)return;
+  const old=keepValue ? el.value : '';
+  el.innerHTML=`<option value="">${firstLabel}</option>`+
+    values.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+  if(old && values.includes(old)) el.value=old;
+}
+
+function getFilteredCustomers(prefix) {
+  const loc=document.getElementById(prefix+'LocationFilter')?.value||'';
+  const fol=document.getElementById(prefix+'FollowupFilter')?.value||'';
+  const route=document.getElementById(prefix+'RouteFilter')?.value||'';
+  return state.customers.filter(c =>
+    (!loc || String(c.location||c.address||'')===loc) &&
+    (!route || getCustomerRoute(c)===route) &&
+    (!fol || customerFollowupBucket(c)===fol)
+  );
+}
+
+function renderCustomerFilters(prefix) {
+  const locs=[...new Set(state.customers.map(c=>String(c.location||c.address||'').trim()).filter(Boolean))].sort();
+  populateFilter(prefix+'LocationFilter',locs,'📍 همه لوکیشن‌ها');
+  populateFilter(prefix+'FollowupFilter',['none','overdue','today','future'],'📋 همه پیگیری‌ها');
+  const routes=routeTitles();
+  populateFilter(prefix+'RouteFilter',routes,'🛣️ همه مسیرها');
+}
+
+
+function renderCustomerSelects() {
+  renderCustomerFilters('visitor');
+  renderCustomerFilters('cc');
+
+  const visitorOpts = getFilteredCustomers('visitor').map(c =>
+    `<option value="${c.id}">${esc(c.name || 'بدون نام')} — ${esc(c.phone || '')} — 📍 ${esc(c.location || c.address || '')}</option>`
+  ).join('');
+  const ccOpts = getFilteredCustomers('cc').map(c =>
+    `<option value="${c.id}">${esc(c.name || 'بدون نام')} — ${esc(c.phone || '')} — 📍 ${esc(c.location || c.address || '')}</option>`
+  ).join('');
+
+  const v=document.getElementById('visitorCustomer');
+  const cc=document.getElementById('ccCustomer');
+  if(v) v.innerHTML='<option value="">انتخاب مشتری موجود</option>'+visitorOpts;
+  if(cc) cc.innerHTML='<option value="">انتخاب مشتری</option>'+ccOpts;
+  updateCCCustomerDetails();
+}
+
+function updateCCCustomerDetails() {
+  const select = document.getElementById('ccCustomer');
+  const details = document.getElementById('ccCustomerDetails');
+  const phoneEl = document.getElementById('ccCustomerPhone');
+  const addressEl = document.getElementById('ccCustomerAddress');
+  if (!select || !details || !phoneEl || !addressEl) return;
+
+  const customerId = select.value;
+  const customer = state.customers.find(c => String(c?.id) === String(customerId));
+
+  if (!customerId || !customer) {
+    phoneEl.textContent = '';
+    addressEl.textContent = '';
+    details.style.display = 'none';
+    return;
+  }
+
+  phoneEl.textContent = customer.phone || '';
+  addressEl.textContent = customer.location || '';
+  details.style.display = 'block';
+}
+
+function showCustomerModal() {showModal('customerModal');}
+
+async function createNewCustomer() {
+  const nameEl = document.getElementById('newCustomerName');
+  const typeEl = document.getElementById('newCustomerType');
+  const managerEl = document.getElementById('newCustomerManager');
+  const phoneEl = document.getElementById('newCustomerPhone');
+  const addressEl = document.getElementById('newCustomerAddress');
+
+  const name = nameEl?.value.trim() || '';
+  const type = typeEl?.value || '';
+  const manager = managerEl?.value.trim() || '';
+  const phone = phoneEl?.value.trim() || '';
+  const address = addressEl?.value.trim() || '';
+
+  if (!name || !type || !manager || !phone) {
+    showToast('⚠️ نام، نوع، مسئول و تلفن را وارد کنید');
+    return;
+  }
+
+  const button = document.querySelector('#customerModal .btn-success');
+  if (button) {
+    button.disabled = true;
+    button.dataset.originalText = button.textContent;
+    button.textContent = '⏳ در حال ثبت...';
+  }
+
+  try {
+    // ابتدا فقط در Supabase ثبت می‌کنیم؛ تا قبل از موفقیت، state و localStorage تغییر نمی‌کنند.
+    const customerPayload = {
+      id: genCustomerId(),
+      name,
+      type,
+      manager,
+      phone,
+      location: address,
+      created_at: new Date().toISOString()
+    };
+
+    // بعضی فیلدهای فرم ممکن است در جدول واقعی customers وجود نداشته باشند.
+    // فقط در صورتی که خود Supabase صراحتاً اعلام کند ستونی در schema cache وجود ندارد،
+    // همان فیلد را از payload حذف و INSERT را دوباره امتحان می‌کنیم.
+    // این کار از حدس زدن نام ستون‌های دیتابیس جلوگیری می‌کند.
+    let payload = {...customerPayload};
+    let result = null;
+    for (let attempt = 0; attempt < 8; attempt++) {
+      result = await insertToSupabase('customers', payload, true);
+      if (result.ok) break;
+
+      const match = String(result.message || '').match(/Could not find the '([^']+)' column of 'customers'/i);
+      if (!match || !(match[1] in payload)) break;
+
+      console.warn(`customers: removing unsupported column '${match[1]}' and retrying INSERT`);
+      delete payload[match[1]];
+    }
+
+    if (!result?.ok) {
+      showToast(`⚠️ ثبت مشتری ناموفق بود: ${result?.message || 'خطای Supabase'}`);
+      return;
+    }
+
+    // در صورت return=representation، رکورد واقعی Supabase را وارد state می‌کنیم.
+    const savedCustomer = Array.isArray(result.data) && result.data[0]
+      ? result.data[0]
+      : {...payload};
+    // manager اگر ستون دیتابیس نباشد، فقط برای نمایش فعلی نگه داشته می‌شود؛
+    // روی Supabase ستونی که وجود ندارد نوشته نمی‌شود.
+    if (manager && !Object.prototype.hasOwnProperty.call(savedCustomer, 'manager')) {
+      savedCustomer.manager = manager;
+    }
+    state.customers.push(savedCustomer);
+    saveLocal();
+
+    ['newCustomerName', 'newCustomerType', 'newCustomerManager', 'newCustomerPhone', 'newCustomerAddress'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+
+    closeModal('customerModal');
+    render();
+    showToast('✅ مشتری با موفقیت ثبت شد');
+  } catch (err) {
+    console.error('Create customer error:', err);
+    showToast('⚠️ خطا هنگام ثبت مشتری');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = button.dataset.originalText || '✅ ثبت';
+    }
+  }
+}
+
+function updateVisitorForm() {
+  const customerId = document.getElementById('visitorCustomer').value;
+  document.getElementById('visitorOrderForm').classList.toggle('hidden', !customerId);
+}
+
+function showProductModal() {showModal('productModal');}
+
+async function createNewProduct() {
+  const name = document.getElementById('newProductName').value.trim();
+  const desc = document.getElementById('newProductDesc').value.trim();
+  const price = parseMoneyInput(document.getElementById('newProductPrice').value);
+
+  if (!name) {
+    showToast('⚠️ نام ضروری است');
+    return;
+  }
+
+  const product = {id: genId(), name, desc, price, created_at: new Date().toISOString()};
+  const saved = await insertToSupabase('products', product);
+  if (!saved) {
+    showToast('⚠️ محصول در Supabase ثبت نشد');
+    return;
+  }
+  state.products.push(product);
+  saveLocal();
+
+  document.getElementById('newProductName').value = '';
+  document.getElementById('newProductDesc').value = '';
+  document.getElementById('newProductPrice').value = '0';
+  
+  closeModal('productModal');
+  render();
+  showToast('✅ محصول ثبت شد');
+}
+
+function renderVisitorProductList() {
+  const html = state.products.map(p => `
+    <div class="product-card" onclick="selectProduct('${p.id}')">
+      <strong>${p.name}</strong>
+      <p style="margin:4px 0;font-size:11px;color:var(--gray);">${p.desc}</p>
+      <p style="margin:4px 0;"><strong>${faNum(p.price)}</strong> تومان</p>
+    </div>
+  `).join('');
+  document.getElementById('visitorProductList').innerHTML = html;
+}
+
+function renderCCProductList() {
+  const html = state.products.map(p => `
+    <div class="product-card" onclick="selectCCProduct('${p.id}')">
+      <strong>${p.name}</strong>
+      <p style="margin:4px 0;font-size:11px;color:var(--gray);">${p.desc}</p>
+      <p style="margin:4px 0;"><strong>${faNum(p.price)}</strong> تومان</p>
+    </div>
+  `).join('');
+  const container = document.getElementById('ccProductList');
+  if (container) container.innerHTML = html;
+}
+
+function selectProduct(productId) {
+  const product = state.products.find(p => p.id === productId);
+  if (product) {
+    state.selectedProduct = productId;
+    document.getElementById('visitorPrice').value = Number(product.price || 0).toLocaleString('en-US');
+    document.querySelectorAll('#visitorProductList .product-card').forEach(el => el.classList.remove('selected'));
+    event.target.closest('.product-card').classList.add('selected');
+  }
+}
+
+function selectCCProduct(productId) {
+  const product = state.products.find(p => p.id === productId);
+  if (product) {
+    state.selectedProduct = productId;
+    document.getElementById('ccPrice').value = Number(product.price || 0).toLocaleString('en-US');
+    document.querySelectorAll('#ccProductList .product-card').forEach(el => el.classList.remove('selected'));
+    event.target.closest('.product-card').classList.add('selected');
+  }
+}
+
+function renderAppStore() {
+  const html = state.products.map(p => `
+    <div class="product-card">
+      <strong>${p.name}</strong>
+      <p style="margin:4px 0;font-size:11px;color:var(--gray);">${p.desc}</p>
+      <p style="margin:4px 0;"><strong>${faNum(p.price)}</strong> تومان</p>
+      <button class="btn btn-warning btn-small" onclick="deleteProduct('${p.id}')">🗑️</button>
+    </div>
+  `).join('');
+  document.getElementById('appStoreList').innerHTML = html || '<p style="color:var(--gray);">بدون محصول</p>';
+}
+
+async function deleteProduct(productId) {
+  const deleted = await deleteFromSupabase('products', productId);
+  if (!deleted) {
+    showToast('⚠️ حذف محصول انجام نشد');
+    return;
+  }
+  state.products = state.products.filter(p => p.id !== productId);
+  saveLocal();
+  render();
+  showToast('✅ حذف شد');
+}
+
+async function submitVisitorOrder() {
+  const customerId = document.getElementById('visitorCustomer').value;
+  const productId = state.selectedProduct;
+  const product = state.products.find(p => p.id === productId);
+  const qty = parseInt(document.getElementById('visitorQty').value) || 1;
+  const price = parseMoneyInput(document.getElementById('visitorPrice').value);
+  const notes = document.getElementById('visitorNotes').value.trim();
+  const invoiceType = document.getElementById('visitorInvoiceType').value;
+
+  if (!customerId || !product || qty <= 0 || price < 0) {
+    showToast('⚠️ تمام فیلدها ضروری‌اند');
+    return;
+  }
+
+  const order = {id: genId(), customerId, productId, product: product.name, qty, price, total: qty * price, status: 'pending', orderNotes: notes, invoiceType, source: 'visitor', date: todayStr(), paymentStatus: 'pending', deliveredAt: null, paymentMethod: null, receiptCode: null, created_at: new Date().toISOString()};
+  const orderSaved = await insertToSupabase('orders', order);
+  if (!orderSaved) {
+    showToast('⚠️ سفارش در Supabase ثبت نشد');
+    return;
+  }
+  state.orders.push(order);
+  saveLocal();
+
+  const invoiceNo = 'INV-' + Date.now().toString().slice(-6);
+  const invoice = {id: genId(), orderId: order.id, invoiceNo, date: todayStr(), total: order.total, invoiceType, status: 'pending', customerId, product: product.name, qty, price, notes, created_at: new Date().toISOString()};
+  const invoiceSaved = await insertToSupabase('invoices', invoice);
+  if (invoiceSaved) {
+    state.invoices.push(invoice);
+    saveLocal();
+  } else {
+    await deleteFromSupabase('orders', order.id);
+    state.orders = state.orders.filter(o => String(o.id) !== String(order.id));
+    saveLocal();
+    showToast('⚠️ فاکتور در دیتابیس ذخیره نشد؛ سفارش هم برگشت داده شد');
+    return;
+  }
+
+  document.getElementById('visitorQty').value = '1';
+  document.getElementById('visitorPrice').value = '0';
+  document.getElementById('visitorNotes').value = '';
+  document.getElementById('visitorCustomer').value = '';
+  document.getElementById('visitorOrderForm').classList.add('hidden');
+  state.selectedProduct = null;
+
+  render();
+  showToast(invoiceSaved ? '✅ سفارش و فاکتور ثبت شد' : '⚠️ سفارش ثبت شد ولی فاکتور ذخیره نشد');
+}
+
+function updateCCForm() {
+  const result = document.getElementById('ccResult').value;
+  document.getElementById('ccOrderFields').classList.toggle('hidden', result !== 'order');
+}
+
+async function submitCCResult() {
+  const customerId = document.getElementById('ccCustomer').value;
+  const ccDate = document.getElementById('ccDate').value;
+  const result = document.getElementById('ccResult').value;
+  const followupDate = document.getElementById('ccFollowupDate').value;
+  const notes = document.getElementById('ccNotes').value.trim();
+
+  if (!customerId || !ccDate || !result || !followupDate) {
+    showToast('⚠️ تمام فیلدها ضروری‌اند');
+    return;
+  }
+
+  let invoiceSaved = true;
+
+  if (result === 'order') {
+    const productId = state.selectedProduct;
+    const product = state.products.find(p => p.id === productId);
+    const qty = parseInt(document.getElementById('ccQty').value) || 1;
+    const price = parseMoneyInput(document.getElementById('ccPrice').value);
+    if (!product) {
+      showToast('⚠️ محصول ضروری است');
+      return;
+    }
+
+    const order = {
+      id: genId(), customerId, productId, product: product.name, qty, price,
+      total: qty * price, status: 'pending', orderNotes: notes,
+      source: 'call_center', date: ccDate, paymentStatus: 'pending',
+      deliveredAt: null, paymentMethod: null, receiptCode: null,
+      created_at: new Date().toISOString()
+    };
+
+    const orderSaved = await insertToSupabase('orders', order);
+    if (!orderSaved) {
+      showToast('⚠️ سفارش کال‌سنتر در Supabase ثبت نشد');
+      return;
+    }
+    state.orders.push(order);
+    saveLocal();
+
+    const invoice = {
+      id: genId(), orderId: order.id, invoiceNo: 'INV-' + Date.now().toString().slice(-6),
+      date: ccDate, total: order.total, invoiceType: 'regular', status: 'pending',
+      customerId, product: product.name, qty, price, notes,
+      created_at: new Date().toISOString()
+    };
+    invoiceSaved = await insertToSupabase('invoices', invoice);
+    if (invoiceSaved) {
+      state.invoices.push(invoice);
+      saveLocal();
+    } else {
+      await deleteFromSupabase('orders', order.id);
+      state.orders = state.orders.filter(o => String(o.id) !== String(order.id));
+      saveLocal();
+      showToast('⚠️ فاکتور در دیتابیس ذخیره نشد؛ سفارش برگشت داده شد');
+      return;
+    }
+  }
+
+  const followup = {
+    id: genId(),
+    customer_id: customerId,
+    date: ccDate,
+    result,
+    followup_date: followupDate,
+    notes,
+    created_at: new Date().toISOString()
+  };
+
+  const followupSaved = await insertToSupabase('followups', followup);
+  if (!followupSaved) {
+    showToast(result === 'order' ? '⚠️ سفارش ثبت شد ولی پیگیری ذخیره نشد' : '⚠️ پیگیری در Supabase ثبت نشد');
+    return;
+  }
+
+  state.followups.push(followup);
+  saveLocal();
+
+  document.getElementById('ccCustomer').value = '';
+  updateCCCustomerDetails();
+  document.getElementById('ccDate').value = todayStr();
+  document.getElementById('ccResult').value = '';
+  document.getElementById('ccQty').value = '1';
+  document.getElementById('ccPrice').value = '0';
+  document.getElementById('ccNotes').value = '';
+  document.getElementById('ccFollowupDate').value = '';
+  state.selectedProduct = null;
+  updateCCForm();
+
+  render();
+  showToast(result === 'order' && !invoiceSaved ? '⚠️ سفارش ثبت شد ولی فاکتور ذخیره نشد' : '✅ ثبت شد');
+}
+
+function renderCallCenterQueue() {
+  const container = document.getElementById('ccFollowupQueue');
+  if (!container) return;
+
+  const today = todayStr();
+  const groups = {overdue: [], today: [], future: []};
+
+  state.followups.forEach(followup => {
+    const date = followup.followup_date || followup.followupDate;
+    if (!date) return;
+    if (date < today) groups.overdue.push(followup);
+    else if (date === today) groups.today.push(followup);
+    else groups.future.push(followup);
+  });
+
+  const byDate = (a, b) => (a.followup_date || a.followupDate || '').localeCompare(b.followup_date || b.followupDate || '');
+  groups.overdue.sort(byDate);
+  groups.today.sort(byDate);
+  groups.future.sort(byDate);
+
+  const statusLabel = {overdue: '🔴 عقب‌افتاده', today: '🟠 امروز', future: '🟢 آینده'};
+  const renderGroup = (key, items) => !items.length ? '' : `
+    <div class="section-title" style="margin-top:12px;">${statusLabel[key]}</div>
+    ${items.map(followup => {
+      const customer = state.customers.find(c => c.id === (followup.customer_id ?? followup.customerId));
+      const phone = customer?.phone || '';
+      const date = followup.followup_date || followup.followupDate || '';
+      const result = followup.result === 'order' ? 'سفارش' : followup.result === 'no_order' ? 'بدون سفارش' : (followup.result || '—');
+      return `<div class="order-item">
+        <div style="font-weight:700;font-size:13px;">${customer?.name || ''}</div>
+        <p style="margin:4px 0;font-size:12px;"><strong>تلفن:</strong> ${phone}</p>
+        <p style="margin:4px 0;font-size:12px;"><strong>تاریخ پیگیری:</strong> ${faDate(date)}</p>
+        <p style="margin:4px 0;font-size:12px;"><strong>وضعیت:</strong> ${statusLabel[key]}</p>
+        <p style="margin:4px 0;font-size:12px;"><strong>نتیجه آخرین تماس:</strong> ${result}</p>
+        <p style="margin:4px 0;font-size:11px;color:var(--gray);"><strong>یادداشت:</strong> ${followup.notes || ''}</p>
+      </div>`;
+    }).join('')}
+  `;
+  container.innerHTML = renderGroup('overdue', groups.overdue) + renderGroup('today', groups.today) + renderGroup('future', groups.future) || '<p style="color:var(--gray);">بدون پیگیری</p>';
+}
+
+function renderDeliveryList() {
+  const ready = state.orders.filter(o => !o.deliveredAt && o.status !== 'cancelled');
+  const html = ready.map(order => {
+    const customer = findCustomerById(order.customerId);
+    const status = order.deliveryStatus || 'pending';
+    const statusBadges = {
+      'pending': '<span style="background:#FFF3E0;color:var(--warning);padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;">آماده</span>',
+      'in_transit': '<span style="background:#E3F2FD;color:var(--info);padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;">📍 در راه</span>',
+      'not_available': '<span style="background:#FFEBEE;color:#C62828;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;">📵 عدم حضور</span>'
+    };
+    
+    return `
+      <div class="order-item">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-weight:600;font-size:13px;">${esc(customer?.name || 'مشتری نامشخص')}</div>
+          ${statusBadges[status] || statusBadges['pending']}
+        </div>
+        <p style="margin:4px 0;font-size:12px;"><strong>محصول:</strong> ${esc(order.product || order.productName || 'محصول نامشخص')}</p>
+        <p style="margin:4px 0;font-size:12px;"><strong>مقدار:</strong> ${faNum(order.qty)}</p>
+        ${order.deliveryNotes ? `<p style="margin:4px 0;font-size:11px;color:var(--gray);"><strong>یادداشت:</strong> ${order.deliveryNotes}</p>` : ''}
+        <button class="btn btn-warning" onclick="showDeliveryModal('${order.id}')">🚚 وضعیت تحویل</button>
+         <button class="btn btn-danger" onclick="deleteDelivery('${order.id}')">🗑️ حذف تحویل</button>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('deliveryList').innerHTML = html || '<p style="color:var(--gray);">بدون سفارش</p>';
+}
+
+function showProductionModal(orderId) {
+  state.currentOrderId = orderId;
+  document.getElementById('productionStatus').value = '';
+  document.getElementById('productionNotes').value = '';
+  showModal('productionModal');
+}
+
+async function confirmProduction() {
+  const orderId = state.currentOrderId;
+  const status = document.getElementById('productionStatus').value;
+  const notes = document.getElementById('productionNotes').value.trim();
+
+  if (!status) {
+    showToast('⚠️ وضعیت ضروری است');
+    return;
+  }
+
+  const order = state.orders.find(o => o.id === orderId);
+  if (order) {
+    const updatedOrder = {
+      ...order,
+      productionStatus: status,
+      productionNotes: notes,
+      status: status === 'completed' ? 'ready_for_delivery' : 'failed'
+    };
+    const saved = await updateSupabase('orders', orderId, updatedOrder);
+    if (!saved) {
+      showToast('⚠️ ذخیره تغییرات سفارش انجام نشد');
+      return;
+    }
+    Object.assign(order, updatedOrder);
+    saveLocal();
+  }
+
+  closeModal('productionModal');
+  render();
+  showToast(status === 'completed' ? '✅ تولید شد' : '❌ عدم تولید');
+}
+
+function showDeliveryModal(orderId) {
+  state.currentOrderId = orderId;
+  document.getElementById('deliveryDate').value = todayStr();
+  document.getElementById('deliveryStatus').value = '';
+  document.getElementById('deliveryNotes').value = '';
+  showModal('deliveryModal');
+}
+
+async function confirmDelivery() {
+  const orderId = state.currentOrderId;
+  const deliveryDate = document.getElementById('deliveryDate').value;
+  const deliveryStatus = document.getElementById('deliveryStatus').value;
+  const deliveryNotes = document.getElementById('deliveryNotes').value.trim();
+
+  if (!deliveryStatus) {
+    showToast('⚠️ وضعیت ضروری است');
+    return;
+  }
+
+  const order = state.orders.find(o => o.id === orderId);
+  if (order) {
+    const updatedOrder = {
+      ...order,
+      deliveryDate,
+      deliveryStatus,
+      deliveryNotes
+    };
+
+    if (deliveryStatus === 'delivered') {
+      updatedOrder.deliveredAt = deliveryDate;
+      updatedOrder.status = 'delivered';
+    } else {
+      }
+
+    const saved = await updateSupabase('orders', orderId, updatedOrder);
+    if (!saved) {
+      showToast('⚠️ ذخیره وضعیت تحویل انجام نشد');
+      return;
+    }
+    Object.assign(order, updatedOrder);
+    saveLocal();
+  }
+
+  closeModal('deliveryModal');
+  render();
+
+  if (deliveryStatus === 'delivered') {
+    showToast('✅ تحویل داده شد');
+  } else if (deliveryStatus === 'in_transit') {
+    showToast('📍 در راه ثبت شد');
+  } else {
+    showToast('📵 عدم حضور ثبت شد');
+  }
+}
+
+function renderProductionList() {
+  const pending = state.orders.filter(o => o.status === 'pending' || o.status === 'confirmed');
+  const html = pending.map(order => {
+    const customer = findCustomerById(order.customerId);
+    return `
+      <div class="order-item">
+        <div style="font-weight:600;font-size:13px;">${esc(customer?.name || 'مشتری نامشخص')} - ${esc(order.product || order.productName || 'محصول نامشخص')}</div>
+        <p style="margin:4px 0;font-size:12px;"><strong>مقدار:</strong> ${faNum(order.qty)}</p>
+        <p style="margin:4px 0;font-size:12px;"><strong>تاریخ:</strong> ${faDate(order.date)}</p>
+        <button class="btn btn-warning" onclick="showProductionModal('${order.id}')">🏭 وضعیت تولید</button>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('productionList').innerHTML = html || '<p style="color:var(--gray);">بدون سفارش</p>';
+}
+
+function renderInvoiceList() {
+  const pending = state.invoices.filter(i => i.status === 'pending');
+  const history = state.invoices.filter(i => i.status !== 'pending');
+
+  const invoiceCard = (inv, historical) => {
+    const order = findOrderById(inv.orderId);
+    const customer = findCustomerById(inv.customerId || order?.customerId);
+
+    const productName = inv.product || inv.productName || order?.product || 'محصول ثبت نشده';
+    const qty = Number(inv.qty ?? inv.quantity ?? order?.qty ?? 0);
+    const price = Number(inv.price ?? inv.unitPrice ?? order?.price ?? 0);
+    const total = Number(inv.total ?? (qty * price));
+    const invNo = inv.invoiceNo || inv.invoice_number || inv.number ||
+      (inv.id ? 'INV-' + String(inv.id).slice(-6) : 'بدون شماره');
+    const invoiceDate = inv.date || inv.created_at || order?.date || '';
+
+    return `<div class="order-item">
+      <div style="display:flex;justify-content:space-between;gap:8px;">
+        <strong>🧾 ${esc(invNo)}</strong>
+        <span style="font-size:11px;color:var(--gray);">${esc(invoiceDate)}</span>
+      </div>
+
+      <div style="margin:8px 0;font-size:12px;line-height:1.9;">
+        <div>👤 <strong>مشتری:</strong> ${esc(customer?.name || inv.customerName || 'مشتری نامشخص')}</div>
+        <div>📞 <strong>تلفن:</strong> ${esc(customer?.phone || inv.phone || 'بدون شماره')}</div>
+        <div>📍 <strong>آدرس:</strong> ${esc(customer?.location || customer?.address || inv.location || 'بدون آدرس')}</div>
+      </div>
+
+      <div style="border-top:1px solid #eee;padding-top:8px;">
+        <div style="font-size:12px;font-weight:700;margin-bottom:5px;">محصول</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span>${esc(productName)}</span>
+          <span>× ${faNum(qty)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:4px;">
+          <span>قیمت واحد</span>
+          <b>${faNum(price)} تومان</b>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:2px solid #eee;font-weight:800;">
+        <span>مبلغ نهایی</span>
+        <span>${faNum(total)} تومان</span>
+      </div>
+
+      ${inv.invoiceType === 'premium' ? '<div style="margin-top:7px;color:#B7791F;font-size:11px;font-weight:700;">🎁 فریمیوم</div>' : ''}
+
+      <div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-info btn-small" onclick="editInvoice('${inv.id}')">✏️ ویرایش</button>
+        <button class="btn btn-danger btn-small" onclick="deleteInvoice('${inv.id}')">🗑️ حذف</button>
+        ${historical ? `<button class="btn btn-success btn-small" onclick="downloadInvoicePDF('${inv.id}')">📥 دانلود</button>` : ''}
+      </div>
+    </div>`;
+  };
+
+  document.getElementById('invoicePendingList').innerHTML =
+    pending.map(inv => invoiceCard(inv, false)).join('') ||
+    '<p style="color:var(--gray);">بدون فاکتور</p>';
+
+  document.getElementById('invoiceHistoryList').innerHTML =
+    history.map(inv => invoiceCard(inv, true)).join('') ||
+    '<p style="color:var(--gray);">بدون فاکتور</p>';
+}
+
+function editInvoice(invoiceId) {
+  const invoice = state.invoices.find(i => i.id === invoiceId);
+  const customer = state.customers.find(c => c.id === invoice?.customerId);
+
+  state.currentInvoiceId = invoiceId;
+  
+  document.getElementById('editInvoiceNo').value = invoice.invoiceNo;
+  document.getElementById('editInvoiceDate').value = invoice.date;
+  document.getElementById('editInvoiceCustomer').value = customer?.name || '';
+  document.getElementById('editInvoiceAddress').value = customer?.location || '';
+  document.getElementById('editInvoiceProduct').value = invoice.product || '';
+  document.getElementById('editInvoiceQty').value = invoice.qty || 1;
+  document.getElementById('editInvoicePrice').value = Number(invoice.price || 0).toLocaleString('en-US');
+  document.getElementById('editInvoiceNotes').value = invoice.notes || '';
+
+  showModal('editInvoiceModal');
+}
+
+async function saveEditInvoice() {
+  const invoiceId = state.currentInvoiceId;
+  const invoice = state.invoices.find(i => i.id === invoiceId);
+  if (!invoice) return;
+
+  const updatedInvoice = {...invoice};
+  updatedInvoice.invoiceNo = document.getElementById('editInvoiceNo').value;
+  updatedInvoice.date = document.getElementById('editInvoiceDate').value;
+  updatedInvoice.product = document.getElementById('editInvoiceProduct').value;
+  updatedInvoice.qty = parseInt(document.getElementById('editInvoiceQty').value) || 1;
+  updatedInvoice.price = parseMoneyInput(document.getElementById('editInvoicePrice').value);
+  updatedInvoice.total = updatedInvoice.qty * updatedInvoice.price;
+  updatedInvoice.notes = document.getElementById('editInvoiceNotes').value;
+  updatedInvoice.status = 'issued';
+
+  const invoiceSaved = await updateSupabase('invoices', invoiceId, updatedInvoice);
+  if (!invoiceSaved) {
+    showToast('⚠️ بروزرسانی فاکتور ذخیره نشد');
+    return;
+  }
+
+  const order = state.orders.find(o => o.id === invoice.orderId);
+  if (order) {
+    const updatedOrder = {...order, product: updatedInvoice.product, qty: updatedInvoice.qty, price: updatedInvoice.price, total: updatedInvoice.total, orderNotes: updatedInvoice.notes};
+    const orderSaved = await updateSupabase('orders', order.id, updatedOrder);
+    if (orderSaved) Object.assign(order, updatedOrder);
+    else showToast('⚠️ فاکتور بروزرسانی شد ولی سفارش بروزرسانی نشد');
+  }
+
+  Object.assign(invoice, updatedInvoice);
+  saveLocal();
+  closeModal('editInvoiceModal');
+  render();
+  showToast('✅ بروز شد');
+}
+
+function downloadInvoicePDF(invoiceId) {
+  const invoice = state.invoices.find(i => i.id === invoiceId);
+  const customer = state.customers.find(c => c.id === invoice?.customerId);
+
+  const html = `
+    <div dir="rtl" style="font-family:Arial;padding:20px;background:#fff;">
+      <h1 style="text-align:center;color:#8B0000;margin-bottom:20px;">🏪 فاکتور فروش دارکو</h1>
+      <div style="border-bottom:2px solid #8B0000;padding-bottom:10px;margin-bottom:20px;">
+        <p><strong>شماره فاکتور:</strong> ${invoice.invoiceNo}</p>
+        <p><strong>تاریخ صدور:</strong> ${faDate(invoice.date)}</p>
+      </div>
+      <div style="border-bottom:1px solid #E0D2C0;padding-bottom:10px;margin-bottom:20px;">
+        <p><strong>نام مشتری:</strong> ${esc(customer?.name || 'مشتری نامشخص')}</p>
+        <p><strong>نام مسئول:</strong> ${customer?.manager}</p>
+        <p><strong>تلفن:</strong> ${customer?.phone}</p>
+        <p><strong>آدرس:</strong> ${customer?.location}</p>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <tr style="border-bottom:2px solid #8B0000;">
+          <th style="padding:10px;text-align:right;">شرح کالا</th>
+          <th style="padding:10px;text-align:center;">تعداد</th>
+          <th style="padding:10px;text-align:center;">قیمت واحد</th>
+          <th style="padding:10px;text-align:left;">جمع</th>
+        </tr>
+        <tr style="border-bottom:1px solid #E0D2C0;">
+          <td style="padding:10px;text-align:right;">${invoice.product}</td>
+          <td style="padding:10px;text-align:center;">${faNum(invoice.qty)}</td>
+          <td style="padding:10px;text-align:center;">${faNum(invoice.price)}</td>
+          <td style="padding:10px;text-align:left;"><strong>${faNum(invoice.total)}</strong></td>
+        </tr>
+      </table>
+      <div style="text-align:left;padding-top:10px;border-top:2px solid #8B0000;">
+        <p style="font-size:16px;font-weight:bold;color:#8B0000;">جمع کل: ${faNum(invoice.total)} تومان</p>
+      </div>
+      ${invoice.notes ? `<div style="margin-top:20px;padding:10px;background:#FFF8DC;border-radius:4px;"><strong>یادداشت:</strong> ${invoice.notes}</div>` : ''}
+      <div style="margin-top:30px;text-align:center;font-size:11px;color:var(--gray);">
+        <p>تاریخ پرینت: ${new Date().toLocaleString('fa-IR')}</p>
+        <p>سیستم CRM دارکو</p>
+      </div>
+    </div>
+  `;
+
+  const el = document.createElement('div');
+  el.innerHTML = html;
+  document.body.appendChild(el);
+
+  html2pdf().set({
+    margin: 10,
+    filename: `${invoice.invoiceNo}.pdf`,
+    image: {type: 'jpeg', quality: 0.98},
+    html2canvas: {scale: 2, useCORS: true},
+    jsPDF: {orientation: 'portrait', unit: 'mm', format: 'a4'}
+  }).from(el).save().then(() => {
+    document.body.removeChild(el);
+    showToast('✅ دانلود شد');
+  }).catch(err => {
+    console.error('Error:', err);
+    showToast('⚠️ خطا');
+  });
+}
+
+function renderAccountantOrders() {
+  const delivery = state.orders.filter(o => o.status === 'ready_for_delivery' && !o.deliveredAt);
+  const payment = state.orders.filter(o => o.deliveredAt && o.paymentStatus !== 'paid');
+  const completed = state.orders.filter(o => o.deliveredAt && o.paymentStatus === 'paid');
+
+  const deliveryHtml = delivery.map(order => {
+    const customer = findCustomerById(order.customerId);
+    return `<div class="order-item"><div style="font-weight:600;">${esc(customer?.name || 'مشتری نامشخص')}</div><p style="margin:4px 0;font-size:12px;">${esc(order.product || order.productName || 'محصول نامشخص')} - ${faNum(order.qty)}</p><button class="btn btn-warning" onclick="markAsDelivered('${order.id}')">🚚</button></div>`;
+  }).join('');
+
+  const paymentHtml = payment.map(order => {
+    const customer = findCustomerById(order.customerId);
+    return `<div class="order-item"><div style="font-weight:600;">${esc(customer?.name || 'مشتری نامشخص')}</div><p style="margin:4px 0;font-size:12px;">${esc(order.product || order.productName || 'محصول نامشخص')} - ${faNum(order.qty)}</p><button class="btn btn-info" onclick="showPaymentModal('${order.id}')">💳</button></div>`;
+  }).join('');
+
+  const completedHtml = completed.map(order => {
+    const customer = findCustomerById(order.customerId);
+    return `<div class="order-item" style="border-left-color:var(--success);"><div style="font-weight:600;">${esc(customer?.name || 'مشتری نامشخص')}</div><p style="margin:4px 0;font-size:12px;">✅ ${esc(order.product || order.productName || 'محصول نامشخص')}</p></div>`;
+  }).join('');
+
+  document.getElementById('accountantDeliveryList').innerHTML = deliveryHtml || '<p>بدون سفارش</p>';
+  document.getElementById('accountantPaymentList').innerHTML = paymentHtml || '<p>بدون سفارش</p>';
+  document.getElementById('accountantCompletedList').innerHTML = completedHtml || '<p>بدون سفارش</p>';
+}
+
+async function markAsDelivered(orderId) {
+  const order = state.orders.find(o => o.id === orderId);
+  if (!order) return;
+  const updatedOrder = {...order, deliveredAt: todayStr(), status: 'delivered'};
+  const saved = await updateSupabase('orders', orderId, updatedOrder);
+  if (!saved) {
+    showToast('⚠️ تحویل در Supabase ذخیره نشد');
+    return;
+  }
+  Object.assign(order, updatedOrder);
+  saveLocal();
+  render();
+  showToast('✅');
+}
+
+function showPaymentModal(orderId) {
+  state.currentOrderId = orderId;
+  showModal('paymentModal');
+}
+
+function updatePaymentFields() {
+  const method = document.getElementById('paymentMethod').value;
+  document.getElementById('transferFields').classList.toggle('hidden', method !== 'transfer');
+}
+
+async function confirmPayment() {
+  const orderId = state.currentOrderId;
+  const method = document.getElementById('paymentMethod').value;
+  const receiptCode = document.getElementById('receiptCode').value.trim();
+
+  if (!method) {
+    showToast('⚠️ لازم');
+    return;
+  }
+
+  const order = state.orders.find(o => o.id === orderId);
+  if (order) {
+    order.paymentStatus = 'paid';
+    order.paymentMethod = method;
+    if (method === 'transfer') order.receiptCode = receiptCode;
+    const updatedOrder = {...order, paymentStatus: 'paid', paymentMethod: method};
+    if (method === 'transfer') updatedOrder.receiptCode = receiptCode;
+    const saved = await updateSupabase('orders', orderId, updatedOrder);
+    if (!saved) {
+      showToast('⚠️ پرداخت ذخیره نشد');
+      return;
+    }
+    Object.assign(order, updatedOrder);
+    saveLocal();
+  }
+
+  document.getElementById('paymentMethod').value = '';
+  document.getElementById('receiptCode').value = '';
+  closeModal('paymentModal');
+  render();
+  showToast('✅');
+}
+
+
+function esc(v){return escapeHtml(v);} 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function renderManagerCustomerList() {
+  const el=document.getElementById('managerCustomerList'); if(!el)return;
+  el.innerHTML=state.customers.map(c=>`<div class="order-item"><strong>${escapeHtml(c.name||'بدون نام')}</strong>
+  <div style="font-size:11px;color:var(--gray);margin:5px 0">${escapeHtml(c.phone||'')}</div>
+  <button class="btn btn-info btn-small" onclick="editCustomer('${c.id}')">✏️ ویرایش</button>
+  <button class="btn btn-danger btn-small" onclick="deleteCustomer('${c.id}')">🗑️ حذف</button></div>`).join('')||'<p>بدون مشتری</p>';
+}
+function editCustomer(id){
+  const c=state.customers.find(x=>String(x.id)===String(id)); if(!c)return;
+  state.currentCustomerId=id;
+  document.getElementById('editCustomerName').value=c.name||'';
+  document.getElementById('editCustomerType').value=c.type||c.business_type||'';
+  document.getElementById('editCustomerManager').value=c.manager||'';
+  document.getElementById('editCustomerPhone').value=c.phone||'';
+  document.getElementById('editCustomerAddress').value=c.location||'';
+  showModal('editCustomerModal');
+}
+async function saveEditCustomer(){
+  const c=state.customers.find(x=>String(x.id)===String(state.currentCustomerId)); if(!c)return;
+  const payload={name:document.getElementById('editCustomerName').value.trim(),type:document.getElementById('editCustomerType').value.trim(),manager:document.getElementById('editCustomerManager').value.trim(),phone:document.getElementById('editCustomerPhone').value.trim(),location:document.getElementById('editCustomerAddress').value.trim()};
+  if(!payload.name||!payload.phone){showToast('⚠️ نام و تلفن ضروری است');return;}
+  if(!(await updateSupabase('customers',c.id,payload))){showToast('⚠️ تغییرات مشتری ذخیره نشد');return;}
+  Object.assign(c,payload);saveLocal();closeModal('editCustomerModal');render();showToast('✅ مشتری ویرایش شد');
+}
+async function deleteCustomer(id){
+  const c=state.customers.find(x=>String(x.id)===String(id)); if(!c)return;
+  if(!confirm(`مشتری «${c.name||''}» حذف شود؟`))return;
+  if(!(await deleteFromSupabase('customers',id))){showToast('⚠️ حذف مشتری انجام نشد');return;}
+  state.customers=state.customers.filter(x=>String(x.id)!==String(id));saveLocal();render();showToast('✅ مشتری حذف شد');
+}
+async function deleteInvoice(id){
+  const inv=state.invoices.find(x=>String(x.id)===String(id)); if(!inv)return;
+  if(!confirm(`فاکتور «${inv.invoiceNo||''}» حذف شود؟`))return;
+  if(!(await deleteFromSupabase('invoices',id))){showToast('⚠️ حذف فاکتور انجام نشد');return;}
+  state.invoices=state.invoices.filter(x=>String(x.id)!==String(id));saveLocal();render();showToast('✅ فاکتور حذف شد');
+}
+async function deleteDelivery(id){
+  const o=state.orders.find(x=>String(x.id)===String(id)); if(!o)return;
+  if(!confirm('اطلاعات تحویل حذف شود؟ خود سفارش حذف نمی‌شود.'))return;
+  const updated={...o,deliveryDate:null,deliveryStatus:null,deliveryNotes:null,deliveredAt:null,status:o.productionStatus==='completed'?'ready_for_delivery':'pending'};
+  if(!(await updateSupabase('orders',id,updated))){showToast('⚠️ حذف تحویل انجام نشد');return;}
+  Object.assign(o,updated);saveLocal();render();showToast('✅ اطلاعات تحویل حذف شد');
+}
+
+
+function isPremiumInvoice(inv) {
+  const type = String(inv?.invoiceType || inv?.invoice_type || '').toLowerCase();
+  return type === 'premium' || type === 'freemium' || type.includes('فریمیوم');
+}
+
+function renderSalesQueue() {
+  const el = document.getElementById('salesQueue');
+  if (!el) return;
+
+  const ids = new Set();
+  const candidates = [];
+
+  // Primary source: invoices actually issued as premium/freemium.
+  state.invoices.forEach(inv => {
+    if (!isPremiumInvoice(inv)) return;
+    const customerId = inv.customerId || findOrderById(inv.orderId)?.customerId;
+    const customer = findCustomerById(customerId);
+    if (customer && !ids.has(String(customer.id))) {
+      ids.add(String(customer.id));
+      candidates.push(customer);
+    }
+  });
+
+  // Fallback: orders marked premium/freemium.
+  state.orders.forEach(order => {
+    const type = String(order?.invoiceType || '').toLowerCase();
+    if (!(type === 'premium' || type === 'freemium' || type.includes('فریمیوم'))) return;
+    const customer = findCustomerById(order.customerId);
+    if (customer && !ids.has(String(customer.id))) {
+      ids.add(String(customer.id));
+      candidates.push(customer);
+    }
+  });
+
+  // Fallback for older data where the marker was written in follow-up notes.
+  state.followups.forEach(f => {
+    const s = JSON.stringify(f || {}).toLowerCase();
+    if (!s.includes('freemium') && !s.includes('فریمیوم') && !s.includes('sample') && !s.includes('سمپل')) return;
+    const customer = findCustomerById(f.customer_id || f.customerId);
+    if (customer && !ids.has(String(customer.id))) {
+      ids.add(String(customer.id));
+      candidates.push(customer);
+    }
+  });
+
+  el.innerHTML = candidates.map(c => `
+    <div class="order-item">
+      <div style="display:flex;justify-content:space-between;gap:8px;">
+        <strong>${esc(c.name || 'بدون نام')}</strong>
+        <span style="font-size:11px;color:var(--gray);">🎁 فریمیوم</span>
+      </div>
+      <div style="font-size:11px;margin:6px 0;line-height:1.8;">
+        📞 ${esc(c.phone || 'بدون شماره')}<br>
+        📍 ${esc(c.location || c.address || 'بدون آدرس')}<br>
+        🛣️ ${esc(getCustomerRoute(c) || 'بدون مسیر')}
+      </div>
+      <button class="btn btn-info btn-small" onclick="focusCustomer('${c.id}')">👤 انتخاب مشتری</button>
+    </div>
+  `).join('') || '<p style="color:var(--gray);">مشتری فریمیوم در صف فروش نیست.</p>';
+}
+
+function focusCustomer(id) {
+  const cc = document.getElementById('ccCustomer');
+  const v = document.getElementById('visitorCustomer');
+  if (cc) { cc.value = id; updateCCCustomerDetails(); }
+  if (v) v.value = id;
+}
+
+function renderRouteList() {
+  const el=document.getElementById('routeList'); if(!el)return;
+  const routes=Array.isArray(state.routes)?state.routes:[];
+  el.innerHTML=routes.map(r=>`<div class="order-item" style="display:flex;justify-content:space-between;align-items:center;">
+    <span>🛣️ <strong>${esc(r.title)}</strong> <span style="font-size:11px;color:var(--gray);">(${state.customers.filter(c=>getCustomerRoute(c)===r.title).length} مشتری)</span></span>
+    <button class="btn btn-danger btn-small" onclick="deleteRoute('${r.id}')">🗑️ حذف</button>
+  </div>`).join('') || '<p style="color:var(--gray);">هنوز مسیری ایجاد نشده.</p>';
+}
+async function addRoute() {
+  const input = document.getElementById('newRouteTitle');
+  if (!input) return;
+  const title = input.value.trim();
+  if (!title) {
+    showToast('⚠️ عنوان مسیر را وارد کنید');
+    return;
+  }
+  if (!Array.isArray(state.routes)) state.routes = [];
+  if (state.routes.some(r => String(r.title).trim().toLowerCase() === title.toLowerCase())) {
+    showToast('⚠️ این مسیر قبلاً ایجاد شده');
+    return;
+  }
+
+  const route = {
+    id: 'route_' + Date.now(),
+    routeTitle: title,
+    sentBy: '__ROUTE__',
+    message: 'ROUTE_CONFIG',
+    date: todayStr(),
+    time: new Date().toLocaleTimeString('fa-IR'),
+    created_at: new Date().toISOString()
+  };
+
+  const saved = await insertToSupabase('team_notes', route);
+  if (!saved) {
+    showToast('⚠️ مسیر در دیتابیس ذخیره نشد');
+    return;
+  }
+
+  state.routes.push({id: route.id, title});
+  input.value = '';
+  saveLocal();
+  renderRouteList();
+  renderCustomerSelects();
+  showToast('✅ مسیر ایجاد شد و برای تیم ذخیره شد');
+}
+
+async function deleteRoute(id) {
+  const route = (state.routes || []).find(x => String(x.id) === String(id));
+  if (!route) return;
+  if (!confirm(`مسیر «${route.title}» حذف شود؟ مشتری‌ها حذف نمی‌شوند.`)) return;
+  const ok = await deleteFromSupabase('team_notes', id);
+  if (!ok) {
+    const remoteExists = (state.teamNotes || []).some(n => String(n.id) === String(id) && n.sentBy === '__ROUTE__');
+    if (remoteExists) {
+      showToast('⚠️ حذف مسیر از دیتابیس انجام نشد');
+      return;
+    }
+  }
+  state.routes = (state.routes || []).filter(x => String(x.id) !== String(id));
+  state.teamNotes = (state.teamNotes || []).filter(n => String(n.id) !== String(id));
+  saveLocal(); renderRouteList(); renderCustomerSelects();
+  showToast('✅ مسیر حذف شد');
+}
+
+
+function renderOrdersWithoutInvoices() {
+  const el = document.getElementById('ordersWithoutInvoices');
+  if (!el) return;
+
+  const invoicedOrderIds = new Set(
+    state.invoices
+      .map(i => i.orderId || i.order_id)
+      .filter(Boolean)
+      .map(String)
+  );
+
+  const missing = state.orders.filter(o =>
+    o.id && !invoicedOrderIds.has(String(o.id))
+  );
+
+  el.innerHTML = missing.map(o => {
+    const customer = findCustomerById(o.customerId || o.customer_id);
+    return `<div class="order-item">
+      <div style="font-weight:700;">⚠️ سفارش بدون فاکتور</div>
+      <div style="font-size:12px;line-height:1.8;margin-top:5px;">
+        👤 ${esc(customer?.name || o.customerName || 'مشتری نامشخص')}<br>
+        📞 ${esc(customer?.phone || o.phone || 'بدون شماره')}<br>
+        🧾 سفارش: ${esc(o.id || '—')}<br>
+        📦 ${esc(o.product || o.productName || 'محصول نامشخص')}<br>
+        📊 وضعیت: ${esc(o.status || '—')}
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:var(--gray);">همه سفارش‌ها فاکتور متناظر دارند.</p>';
+}
+
+function renderManagerStats() {
+  const totalOrders = state.orders.length;
+  const totalCustomers = state.customers.length;
+  const deliveredOrders = state.orders.filter(o => o.status === 'delivered').length;
+  const paidOrders = state.orders.filter(o => o.paymentStatus === 'paid').length;
+  const totalRevenue = state.invoices.reduce((sum, i) => sum + i.total, 0);
+
+  const html = `
+    <div class="stat-box"><span class="number">${faNum(totalCustomers)}</span><span class="label">مشتریان</span></div>
+    <div class="stat-box"><span class="number">${faNum(totalOrders)}</span><span class="label">سفارشات</span></div>
+    <div class="stat-box"><span class="number">${faNum(deliveredOrders)}</span><span class="label">تحویل شده</span></div>
+    <div class="stat-box"><span class="number">${faNum(paidOrders)}</span><span class="label">پرداخت شده</span></div>
+    <div class="stat-box"><span class="number">${faNum(Math.floor(totalRevenue / 1000000))}M</span><span class="label">درآمد</span></div>
+  `;
+
+  document.getElementById('managerStats').innerHTML = html;
+}
+
+async function sendTeamNote() {
+  const msg = document.getElementById('teamNote').value.trim();
+  if (!msg) {
+    showToast('⚠️ خالی است');
+    return;
+  }
+
+  const note = {id: genId(), message: msg, sentBy: 'Manager', date: todayStr(), time: new Date().toLocaleTimeString('fa-IR'), created_at: new Date().toISOString()};
+  const saved = await insertToSupabase('team_notes', note);
+  if (!saved) {
+    showToast('⚠️ یادداشت در Supabase ثبت نشد');
+    return;
+  }
+  state.teamNotes.push(note);
+  saveLocal();
+
+  document.getElementById('teamNote').value = '';
+  render();
+  showToast('✅');
+}
+
+function renderTeamNotes() {
+  const html = state.teamNotes.filter(note => note.sentBy !== '__ROUTE__').slice().reverse().map(note => `
+    <div class="team-note">
+      <div style="font-size:11px;color:var(--gray);margin-bottom:4px;">📢 ${note.sentBy} - ${faDate(note.date)} ${note.time}</div>
+      <div style="font-size:13px;color:#000;">${note.message}</div>
+    </div>
+  `).join('');
+
+  const container = document.getElementById('teamNotesHistory');
+  if (container) container.innerHTML = html || '<p style="color:var(--gray);">بدون پیام</p>';
+}
+
+async function createBackup() {
+  const backup = {id: genId(), data: state, date: todayStr(), time: new Date().toLocaleTimeString('fa-IR'), size: JSON.stringify(state).length, created_at: new Date().toISOString()};
+  state.backups.push(backup);
+  saveLocal();
+  localStorage.setItem(`darko_backup_${backup.id}`, JSON.stringify(backup));
+  showToast('✅');
+}
+
+function renderBackupList() {
+  const html = state.backups.slice().reverse().map(backup => `
+    <div class="backup-item">
+      <div>
+        <div style="font-weight:600;font-size:12px;">📦 ${backup.date} ${backup.time}</div>
+        <p style="margin:4px 0;font-size:11px;color:var(--gray);">حجم: ${(backup.size / 1024).toFixed(2)} KB</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-success btn-small" onclick="restoreBackup('${backup.id}')">♻️</button>
+        <button class="btn btn-warning btn-small" onclick="deleteBackup('${backup.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('backupList').innerHTML = html || '<p style="color:var(--gray);">بدون بک‌آپ</p>';
+}
+
+function showRestoreModal() {
+  const html = state.backups.slice().reverse().map(backup => `
+    <div class="backup-item">
+      <div><div style="font-weight:600;">${backup.date} ${backup.time}</div></div>
+      <button class="btn btn-success btn-small" onclick="restoreBackup('${backup.id}')">بازیابی</button>
+    </div>
+  `).join('');
+  document.getElementById('restoreList').innerHTML = html || '<p>بدون بک‌آپ</p>';
+  showModal('restoreModal');
+}
+
+async function restoreBackup(backupId) {
+  const backupData = localStorage.getItem(`darko_backup_${backupId}`);
+  if (!backupData) {
+    showToast('⚠️ یافت نشد');
+    return;
+  }
+
+  const backup = JSON.parse(backupData);
+  Object.assign(state, backup.data);
+  saveLocal();
+  
+  closeModal('restoreModal');
+  render();
+  showToast('✅');
+  setTimeout(() => location.reload(), 1000);
+}
+
+function deleteBackup(backupId) {
+  state.backups = state.backups.filter(b => b.id !== backupId);
+  localStorage.removeItem(`darko_backup_${backupId}`);
+  saveLocal();
+  render();
+  showToast('✅');
+}
+</script>
+
+</body>
+</html>
